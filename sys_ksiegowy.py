@@ -3,6 +3,48 @@ magazyn = {}        # {nazwa: {"cena": float, "ilosc": int}}
 historia = []       # lista wykonanych operacji
 
 
+def zapisz_do_pliku(nazwa_pliku="dane.txt"):
+    with open(nazwa_pliku, "w", encoding="utf-8") as f:
+        f.write("SALDO\n")
+        f.write(f"{saldo}\n")
+
+        f.write("MAGAZYN\n")
+        for nazwa, dane in magazyn.items():
+            f.write(f"{nazwa};{dane['cena']};{dane['ilosc']}\n")
+
+        f.write("HISTORIA\n")
+        for wpis in historia:
+            f.write(wpis+ "\n")
+
+def wczytaj_z_pliku(nazwa_pliku="dane.txt"):
+    global saldo, magazyn, historia
+
+    try:
+        with open(nazwa_pliku, "r", encoding="utf-8") as f:
+            linie=[linia.strip() for linia in f.readlines()]
+
+        sekcja = None
+        for linia in linie:
+            if linia in ("SALDO", "MAGAZYN", "HISTORIA"):
+                sekcja = linia
+                continue
+
+            if sekcja == "SALDO":
+                saldo = float(linia)
+
+            elif sekcja == "MAGAZYN":
+                nazwa, cena, ilosc = linia.split(";")
+                magazyn[nazwa] = {
+                    "cena": float(cena),
+                    "ilosc": int(ilosc)
+                }
+            elif sekcja == "HISTORIA":
+                historia.append(linia)
+
+    except FileNotFoundError:
+        pass
+
+
 def pokaz_komendy():
     print("""
 Dostępne komendy:
@@ -97,7 +139,7 @@ def cmd_magazyn():
     nazwa = input("Podaj nazwę produktu: ").lower()
     if nazwa in magazyn:
         dane = magazyn[nazwa]
-        print(f"{nazwa}: {dane['ilosc']} szt., cena {dane['cena']} zł")
+        print(f"{nazwa}: {dane['ilosc']} szt., cena {dane['cena']:.2f} zł")
     else:
         print("Brak produktu w magazynie")
 
@@ -106,7 +148,7 @@ def cmd_przeglad():
     if not historia:
         print("Brak zapisanych operacji")
         return
-    print(f"Dostępny zakres indeksów: [0:{len(historia)}]")
+    print(f"Dostępny zakres indeksów: [0:{len(historia)-1}]")
     od = input(f"Od (podaj index operacji od której ma zaczynać się przegląd - domyślnie 0: ")
     do = input("Do (podaj index operacji na której ma kończyć się przegląd: ")
     
@@ -132,13 +174,20 @@ komendy = {
     "magazyn": cmd_magazyn,
     "przegląd": cmd_przeglad,
 }
+if __name__ =="__main__":
+    wczytaj_z_pliku()
 
-while True:
-    pokaz_komendy()
-    cmd = input("Wybierz komendę: ").strip().lower()
+    while True:
+        pokaz_komendy()
+        cmd = input("Wybierz komendę: ").strip().lower()
 
-    if cmd == "koniec":
-        break
+        if cmd == "koniec":
+            zapisz_do_pliku()
+            break 
+        # komendy.get(cmd, "nieznana komenda")()
 
-    komendy.get(cmd, "nieznana komenda")()
-   
+        elif cmd in komendy:
+            komendy[cmd]()
+        else:
+            print("Nieznana komenda")
+    
