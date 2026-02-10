@@ -6,12 +6,7 @@ piosenka_refren.txt
 
 piosenta_zwrotka2.txt
 
-A ja szepnę skrycie
-och życie kocham cię kocham cię
-kocham cię nad życie
-Choć barwy ściemniasz
-Choć tej wędrówki mi nie uprzyjemniasz
-Choć się marnie odwzajemniasz
+piosenka_refren2.txt
 
 Kocham cię życie
 Kiedy sen kończy się kończy się
