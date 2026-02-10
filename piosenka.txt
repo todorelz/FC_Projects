@@ -4,12 +4,7 @@ piosenta_zwrotka1.txt
 
 piosenka_refren.txt
 
-Wierzę w niezmienność
-Nadziei nadziei
-W światełko na mierzei
-Co drogę wskaże we mgle
-Nie zdradzi mnie
-Nie opuści mnie
+piosenta_zwrotka2.txt
 
 A ja szepnę skrycie
 och życie kocham cię kocham cię
