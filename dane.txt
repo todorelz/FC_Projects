@@ -1,0 +1,7 @@
+SALDO
+11357.0
+MAGAZYN
+bulka;1.0;3
+HISTORIA
+saldo 10.0
+zakup bulka 1.0 3
