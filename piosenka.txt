@@ -10,18 +10,4 @@ piosenka_refren2.txt
 
 piosenta_zwrotka3.txt
 
-Uparcie i skrycie
-och życie kocham cię kocham cię
-kocham cię nad życie
-Jem jabłko winne
-I myślę ech ty życie łez mych winne
-Nie zamienię cię na inne
-
-Kocham cię życie
-Poznawać pragnę cię pragnę cię
-Pragnę cię w zachwycie
-I spotkać człowieka
-Który tak życie kocha
-I tak jak ja
-Nadzieję ma...
-
+piosenka_refren3.txt
