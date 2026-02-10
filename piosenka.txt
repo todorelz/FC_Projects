@@ -1,12 +1,6 @@
 Tekst piosenki:
 Edyta Geppert 
-Och życie kocham Cie nad życie
-Uparcie i skrycie
-och życie kocham cię kocham cię
-kocham cię nad życie
-W każdą pogodę
-potrafią dostrzec oczy moje młode
-niebezpieczną twą urodę
+piosenta_zwrotka1.txt
 
 Kocham cię życie
 poznawać pragnę cię pragnę cię
