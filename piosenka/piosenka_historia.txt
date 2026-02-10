@@ -1,4 +1,10 @@
-commit 03399bfe05751a67c6667314abee67ae6adaf700 (HEAD -> master, origin/master, origin/HEAD)
+commit 61101fd4a1fa43c5b529a093f5567bab8862dee6 (HEAD -> master, origin/master, origin/HEAD)
+Author: todorelz <elzbieta.todorska@op.pl>
+Date:   Tue Feb 10 10:02:47 2026 +0100
+
+    stworzenie katalogu piosenka
+
+commit 03399bfe05751a67c6667314abee67ae6adaf700
 Author: todorelz <elzbieta.todorska@op.pl>
 Date:   Tue Feb 10 09:55:45 2026 +0100
 
@@ -50,6 +56,7 @@ commit 3a4bb224b18cdd41112ec461b3a26d091937f399
 Author: todorelz <elzbieta.todorska@op.pl>
 Date:   Tue Feb 10 09:33:55 2026 +0100
 
+    wycięta pierwsza zwrotka
     wycięta pierwsza zwrotka
 
 commit 0d1bd3d0f59e0c24260a78e29194b537a20bcd40
