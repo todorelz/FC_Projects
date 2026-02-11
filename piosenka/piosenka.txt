@@ -1,0 +1,13 @@
+Tekst piosenki:
+Edyta Geppert 
+piosenta_zwrotka1.txt
+
+piosenka_refren.txt
+
+piosenta_zwrotka2.txt
+
+piosenka_refren2.txt
+
+piosenta_zwrotka3.txt
+
+piosenka_refren3.txt
