@@ -23,17 +23,16 @@
 # plakat,czerwony,8,0
 
 print('jestem w pliku')
+import sys
+import csv
+from pathlib import Path
 
-# import csv
-# with open('.\data\in.csv', newline = ' ', encoding='utf-8') as file:
-#     reader = csv.reader(file)
-#     print(reader)
+with open('data/in.csv', "w", newline = ' ', encoding='utf-8') as file:
+    reader = csv.reader(file)
+    print(reader)
 
-# # python reader.py dane/in.csv out.csv 0,0,gitara
 
-# from pathlib import Path
-
-# BASE_DIR = Path(__file__).parent
-# print(BASE_DIR)
-# plik_wej = BASE_DIR / "dane" / "in.csv"
-# print(plik_wej)
+BASE_DIR = Path(__file__).parent
+print(BASE_DIR)
+plik_wej = BASE_DIR / "dane" / "in.csv"
+print(plik_wej)
