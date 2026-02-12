@@ -22,17 +22,16 @@
 # pedzel,17,34,5
 # plakat,czerwony,8,0
 
-print('jestem w pliku')
+
 import sys
 import csv
 from pathlib import Path
 
-with open('data/in.csv', "w", newline = ' ', encoding='utf-8') as file:
+with open('data/in.csv', "w", newline = '', encoding='utf-8') as file:
     reader = csv.reader(file)
     print(reader)
 
 
-BASE_DIR = Path(__file__).parent
-print(BASE_DIR)
+BASE_DIR = Path.cwd()
 plik_wej = BASE_DIR / "dane" / "in.csv"
 print(plik_wej)
