@@ -27,11 +27,14 @@ import sys
 import csv
 from pathlib import Path
 
-with open('data/in.csv', "w", newline = '', encoding='utf-8') as file:
+
+with open("../data/in.csv", "r", newline="", encoding="utf-8") as file:
     reader = csv.reader(file)
-    print(reader)
+
+    for row in reader:
+        print(row)
 
 
-BASE_DIR = Path.cwd()
-plik_wej = BASE_DIR / "dane" / "in.csv"
-print(plik_wej)
+# BASE_DIR = Path.cwd()
+# plik_wej = BASE_DIR / "dane" / "in.csv"
+# print(plik_wej)
