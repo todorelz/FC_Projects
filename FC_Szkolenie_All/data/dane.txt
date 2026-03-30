@@ -1,0 +1,24 @@
+
+# Rozważmy następujący problem - nasz program przetwarza dużą tablicę danych wczytaną z pliku. 
+# W pliku występują linie komentarza, zaczynające się od znaku "#" - linie z komentarzem powinny być pominięte. Napiszmy funkcję wczytującą dane:
+
+def read_data(sciezka):
+    with open(sciezka) as fp:
+        return [line.strip() for line in fp if line and line[0] != "#"]
+
+for index, line in enumerate(read_data("dane.txt")):
+    print("{}) {}".format(index+1, line))
+
+# Zauważ, że ta funkcja wymagania wczytania całości zawartości pliku do pamięci. Co, jeśli plik ma duży rozmiar > 1GB? 
+# W takim wypadku nasz program będzie zużywał bardzo dużo zasobów.
+# Napisanie funkcji czytającej tylko jedną linię będzie wymagało użycia zmiennych globalnych lub stworzenia klasy:
+
+fp = open("dane.txt")
+def read_line(fp):
+    while True:
+        line = fp.readline()
+        if line == "":
+            return None
+        if line and line[0] == "#":
+            continue
+        return line
