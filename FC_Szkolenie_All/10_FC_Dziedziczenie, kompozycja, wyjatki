@@ -1,0 +1,336 @@
+# Statyczne właściwości
+
+# Do tej pory dla obiektów deklarowaliśmy właściwości, które nie były współdzielone między obiektami. Python pozwala jednak na deklaracje takich właściwości - co więcej, są one dziedziczone tak samo jak metody.
+
+# Właściwość statyczna (taka, która ma taką samą wartość dla wszystkich obiektów tej klasy) jest deklarowana bezpośrednio w ciele klasy (nie w metodzie). Przykład - id dla każdego produktu nadawane w momencie jego utworzenia (autoincrement)
+
+# class Product:
+#     counter = 0
+
+#     def __init__(self, name, price):
+#         self.name = name
+#         self.price = price
+#         self.id = Product.counter
+#         Product.counter += 1
+
+#     def __str__(self):
+#         return self.name
+
+#     def get_price(self, qty):
+#         return self.price * int(qty)
+# Zauważ, że dostęp do parametru "counter" jest możliwy poprzez nazwę klasy (nie przez "self").
+
+# Przetestujmy obecny obiekt i generowane przez niego identyfikatory:
+
+# p1 = Product("a1", 100)
+# p2 = Product("a2", 100)
+# p3 = Product("a3", 100)
+
+# print(p1.id)
+# print(p2.id)
+# print(p3.id)
+
+# Przykładowy kod zwróci rezultat:
+
+# 0
+# 1
+# 2
+
+
+# Wykonywanie metod za pomocą nazwy klasy
+
+# Do właściwości statycznych odwoływaliśmy się do tej pory poprzez obiekt (self lub nazwę zmiennej przetrzymującej obiekt). Metody są dostępne również z poziomu klasy.
+
+# Kod:
+
+# p1 = Product("a1", 100)
+# print(p1.get_price(2))
+# jest równoważny z:
+
+# p1 = Product("a1", 100)
+# print(Product.get_price(p1, 2))
+
+# Zauważ, że musimy wtedy podać zmienną, której wartość będzie przypisana do parametru self.
+
+# Powtarzalność kodu w deklaracji klas
+
+# Rozważmy następujący problem - mamy następujące zdefiniowane klasy dla różnych rodzajów produktów do obliczania ich ceny i dostępności:
+
+# from datetime import datetime, timedelta
+# from math import ceil
+
+
+# # produkty cyfrowe, wysyłamy je w tej samej minucie, w której otrzymamy wpłatę
+# class DigitalProduct:
+#     def __init__(self, name, price):
+#         self.name = name
+#         self.price = price
+
+#     def get_price(self, qty):
+#         return self.price * int(qty)
+        
+#     def available_at(self):
+#         return datetime.now()
+
+#     def __str__(self):
+#         return self.name
+
+
+# class StandardProduct:
+#     def __init__(self, name, price):
+#         self.name = name
+#         self.price = price
+
+#     def get_price(self, qty):
+#         return self.price * int(qty)
+        
+#     def available_at(self):
+#         return datetime.now() + timedelta(days=7)
+
+#     def __str__(self):
+#         return self.name
+
+
+# class MBRProduct:
+#     def __init__(self, name, price, roll_size):
+#         self.name = name
+#         self.price = price
+#         self.roll_size = roll_size
+
+#     def get_price(self, qty):
+#         return self.price * ceil(qty / self.roll_size)
+        
+#     def available_at(self):
+#         return datetime.now() + timedelta(days=3)
+
+#     def __str__(self):
+#         return "{} ({})".format(self.name, self.roll_size)
+
+
+
+# Zauważ, że kod w podanych klasach powtarza się, jednocześnie implementuje bardzo podobną funkcjonalność. Python pozwala na kompozycję, to jest rozszerzanie już istniejących klas, zachowując funkcjonalności już istniejących elementów. Na przykładzie klasy DigitalProduct, możemy ją rozbić na klasę bazową Product i klasę pochodną DigitalProduct:
+
+# class Product:
+#     def __init__(self, name, price):
+#         self.name = name
+#         self.price = price
+
+#     def __str__(self):
+#         return self.name
+
+#     def get_price(self, qty):
+#         return self.price * int(qty)
+
+
+# class DigitalProduct(Product):
+#     def available_at(self):
+#         return datetime.now()
+
+# Klasa DigitalProduct będzie miała takie same metody, jak w poprzednim wypadku, a kod klasy Product może być użyty do zaimplementowania klas MBRProduct i StandardProduct:
+
+# from datetime import datetime, timedelta
+# from math import ceil
+
+
+# class Product:
+#     def __init__(self, name, price):
+#         self.name = name
+#         self.price = price
+
+#     def __str__(self):
+#         return self.name
+
+#     def get_price(self, qty):
+#         return self.price * int(qty)
+
+
+# class DigitalProduct(Product):
+#     def available_at(self):
+#         return datetime.now()
+
+
+# class StandardProduct(Product):
+#     def available_at(self):
+#         return datetime.now() + timedelta(days=7)
+
+
+# class MBRProduct(Product):
+#     def __init__(self, name, price, roll_size):
+#         self.name = name
+#         self.price = price
+#         self.roll_size = roll_size
+
+#     def get_price(self, qty):
+#         return self.price * ceil(qty / self.roll_size)
+     
+#     def available_at(self):
+#         return datetime.now() + timedelta(days=3)
+
+
+
+# Nadpisywanie odziedziczonej metody:
+
+# Zauważ, że klasa Product in MBRProduct z naszego przykładu mają tę samą metodę "get_price"
+
+# from datetime import datetime, timedelta
+# from math import ceil
+
+
+# class Product:
+#     counter = 0
+
+#     def __init__(self, name, price):
+#         self.name = name
+#         self.price = price
+#         self.id = Product.counter
+#         Product.counter += 1
+
+#     def __str__(self):
+#         return self.name
+
+#     def get_price(self, qty):
+#         return self.price * int(qty)
+     
+
+# class MBRProduct(Product):
+#     def __init__(self, name, price, roll_size):
+#         self.name = name
+#         self.price = price
+#         self.roll_size = roll_size
+
+#     def get_price(self, qty):
+#         return self.price * ceil(qty / self.roll_size)
+        
+#     def available_at(self):
+#         return datetime.now() + timedelta(days=3)
+
+# Zauważ różnicę między wynikami w zależności od użytej klasy:
+
+# mbrp = MBRProduct("mbr", 100, 10)
+# print(Product.get_price(mbrp, 9))
+# print(MBRProduct.get_price(mbrp, 9))
+
+# Domyślnie obiekt użyje metody z klasy najwyżej w hierarchii, w naszym wypadku MBRProduct.
+# Potwierdźmy to wykonując następujący kod:
+
+# mbrp = MBRProduct("mbr", 100, 10)
+# print(Product.get_price(mbrp, 9))
+# print(MBRProduct.get_price(mbrp, 9))
+# print(mbrp.get_price(9))
+
+# Rezultat
+
+# 900
+# 100
+# 100
+
+# Co jeśli w metodzie klasy chcesz użyć metody klasy bazowej? Możesz to zrobić za pomocą nazwy klasy bazowej.
+# Przepiszmy naszą metodę get_price w klasie MBRProduct:
+
+# def get_price(self, qty):
+#     return Product.get_price(self, ceil(qty/self.roll_size))
+
+# W pythonie mamy również opcję użycia specjalnej funkcji super, która zwraca nam obiekt używający klasy o jeden niżej w hierarchii:
+
+# def get_price(self, qty):
+#     return super().get_price(ceil(qty/self.roll_size))
+
+
+# Wyjątki:
+
+# Python pozwala na wychwycenie niestandardowych błędów i obsłużenie ich poprzez mechanizm wyjątków. Utwórz plik exceptions.py o treści:
+
+# import sys
+
+# integer_val = int(sys.argv[1]) 
+
+# Wykonaj go poprzez:
+
+# python exceptions.py test
+
+# Program zwróci następujący błąd:
+
+# ValueError: invalid literal for int() with base 10: 'test'
+
+# "ValueError" jest Klasą naszego wyjątku. Aby przechwycić wyjątek użyjemy bloku kodu try ... except:
+
+# import sys
+
+# try:
+#     integer_val = int(sys.argv[1])
+# except ValueError:
+#     integer_val = 0
+# ﻿
+# Jeśli potrzebujemy obiektu reprezentującego nasz wyjątek, możemy go uzyskać poprzez składnię except <<class>> as <<obj>>:
+
+# import sys
+
+# try:
+#     integer_val = int(sys.argv[1])
+# except ValueError as e:
+#     integer_val = 0
+#     print(e)
+
+# Istnieje możliwość wychwycenia wielu wyjątków w jednym bloku:
+
+# import sys, json
+
+# try:
+#     integer_val1 = json.loads("{a")
+#     integer_val2 = int(sys.argv[1])
+# except json.decoder.JSONDecodeError as e:
+#     integer_val = 0
+#     print(e)
+# except ValueError as e:
+#     integer_val = 0
+#     print(e)
+
+# Zauważ różnicę w wykonaniu (jeden wyświetlony błąd) powyższego oraz poniższego kodu:
+
+# import sys, json
+
+# try:
+#     integer_val1 = json.loads("{a")
+# except json.decoder.JSONDecodeError as e:
+#     integer_val = 0
+#     print(e)
+   
+# try:
+#     integer_val2 = int(sys.argv[1])
+# except ValueError as e:
+#     integer_val = 0
+#     print(e)
+
+# Co ważne, wykonanie programu jest przenoszone do bloku except od razu po wystąpieniu błędu, niezależnie od tego, czy błąd znajduje się w wewnętrznej funkcji, bloku if itp:
+
+# import sys, json
+
+# def funct_with_error():
+#     for i in range(6):
+#         print("before: {}".format(i))
+#         integer_val2 = int(sys.argv[1])
+#         print("after: {}".format(i))
+
+# try:
+#     funct_with_error()
+# except ValueError as e:
+#     integer_val = 0
+#     print(e)
+
+
+# Bazową klasą wszystkich wyjątków jest "Exception". Możesz stworzyć własny wyjątek poprzez rozszerzenie tej klasy. Aby rzucić własny wyjątek, używamy instrukcji raise:
+
+# class MyException(Exception):
+#     pass
+
+# def raise_my_exc():
+#     raise MyException("sth")
+   
+# try:
+#     raise_my_exc()
+# except MyException:
+#     print("raised")
+
+# Jeśli chcesz wychwycić wszystkie możliwe wyjątki, użyj klasy Exception bezpośrednio:
+
+# except Exception:

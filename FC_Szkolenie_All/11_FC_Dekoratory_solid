@@ -1,0 +1,413 @@
+# Zagnieżdżone funkcje
+
+# Jak do tej pory nasze funkcje zwracały tylko i wyłącznie obiekty lub wartości prymitywne (słowniki, listy, liczby ...). W pythonie jest również możliwe zwracanie klas lub innych funkcji. Napiszmy krótki program, który pobiera z argv pierwszy argument, wskazujący funkcję agregującą, pozostałe parametry to wartości liczbowe do agregacji .
+
+# def avg(*args):
+#     if not args:
+#         return 0
+
+#     counter=0
+#     sum=0
+#     for arg in args:
+#         sum += arg
+#         counter+=1
+#     return sum/counter
+
+
+# def parse_args(argv):
+#     if argv[1] == "max":
+#   	    return max(*[float(item) for item in argv[2:]])
+#     if argv[1] == "min":
+#   	    return min(*[float(item) for item in argv[2:]])
+#     if argv[1] == "avg":
+#   	    return avg(*[float(item) for item in argv[2:]])
+
+# Napiszmy krótką funkcję, która zwróci nam funkcję agregującą. Użyjemy jej w metodzie parse_args:
+
+# def aggr_func(func_name):
+#     if func_name == "max":
+#         return max
+#     if func_name == "min":
+#         return min
+#     if func_name == "avg":
+#         return avg
+
+# def parse_args(argv):
+#     aggrf = aggr_func(argv[1])
+#     return aggrf(*[float(item) for item in argv[2:]])
+
+# Prawdopodobnie funkcja aggrfunc nie będzie użyta nigdzie poza parse_args. W języku python możemy w takich przypadkach przenieść definicję funkcji aggr_func wewnątrz parse_args:
+
+# def parse_args(argv):
+#     def aggr_func(func_name):
+#     	if func_name == "max":
+#     		return max
+#    	    if func_name == "min":
+#   		    return min
+#    	    if func_name == "avg":
+#   		    return avg
+#     aggrf = aggr_func(argv[1])
+#     return aggrf(*[float(item) for item in argv[2:]])
+
+# Naszą funkcję do przekazania agregacji możemy również przekazać poprzez parametr:
+
+# def parse_args(aggrf, argv):
+#     return aggrf(*[float(item) for item in argv[2:]])
+
+# ret_val = parse_args(max, sys.argv)
+
+
+# Dekoratory
+
+# Utwórzmy funkcję bordered, która otoczy tekst drukowany przez funkcję wewnątrz znakami "="
+
+# import os
+
+
+# def bordered(callback):
+#     w, h = os.get_terminal_size()
+#     print("=" * w, end="\n\n")
+#     callback()
+#     print()
+#     print("=" * w, end="\n\n")
+   
+
+# def main_func():
+#     print("Line 1")
+#     print("Line 2")
+
+
+# bordered(main_func)
+
+
+# def other_func():
+#     print("Line 3")
+#     print("Line 4")
+
+
+# bordered(other_func)
+
+# Python pozwala na skrótowy zapis takiej struktury:
+
+# import os
+
+
+# def bordered(callback):
+#     w, h = os.get_terminal_size()
+#     print("=" * w, end="\n\n")
+#     callback()
+#     print()
+#     print("=" * w, end="\n\n")
+
+
+# @bordered
+# def main_func():
+#     print("Line 1")
+#     print("Line 2")
+
+
+# @bordered
+# def other_func():
+#       print("Line 3")
+#       print("Line 4")
+
+# Nie będziemy używać naszej funkcjonalności poza main_func i other_func bez obramowania. Zastąpmy jej deklaracje tak, by zawsze wykonanie main_func i other_func używało obramowania.
+
+# import os
+
+# def bordered(callback):
+#     w, h = os.get_terminal_size()
+#     print("=" * w, end="\n\n")
+#     callback()
+#     print()
+#     print("=" * w, end="\n\n")
+
+# def main_func():
+#     def main_func_inside():
+#         print("Line 1")
+#         print("Line 2")
+#     bordered(main_func_inside)
+
+# def other_func():
+#     def other_func_inside():
+#         print("Line 3")
+#         print("Line 4")
+#     bordered(other_func_inside)
+
+# Taka struktura może być prościej zapisana poprzez:
+
+# import os
+
+# def bordered(callback):
+#     def retfunc():
+#         w, h = os.get_terminal_size()
+#         print("=" * w, end="\n\n")
+#         callback()
+#         print()
+#         print("=" * w, end="\n\n")
+#     return retfunc  
+
+# @bordered
+# def main_func():
+#     print("Line 1")
+#     print("Line 2")
+   
+# @bordered
+# def other_func():
+#     print("Line 3")
+#     print("Line 4")
+   
+# main_func()
+# other_func()
+
+
+# Dekoratory w obiektach:
+
+# Dekoratory mogą być również metodami obiektu:
+
+# class Manager:
+#     def __init__(self):
+#         self.actions = {}
+    
+#     def assign(self, name):
+#         def decorate(cb):
+#             self.actions[name] = cb
+#         return decorate
+        
+#     def execute(self, name):
+#         if name not in self.actions:
+#             print("Action not defined")
+#         else:
+#             self.actions[name](self)
+            
+# manager = Manager()
+
+
+# @manager.assign("printyes")
+# def printer(manager):
+#     print("yes")
+    
+# manager.execute("printyes")
+# SOLID - Single responisbility principle:
+
+# Klasa odpowiada tylko za jedną funkcjonalność - czyli nasze klasy powinny mieć maksymalnie wąską specjalizację.
+# Rozważmy klasę reprezentującą sklep internetowy:
+
+# class Shop:
+#     def __init__(self, name, url):
+#         self.name = name
+#         self.url = url
+#         self.products = {}
+
+#     def add_product(self, name, price, price_model="qty"):
+#         self.products[name] = {"price": price, "name": name, "model": price_model}
+
+#     def get_product_price(self, product, qty):
+#         product = self.products[product]
+#         if product["model"] == "qty":
+#             return product["price"] * qty
+#         else:
+#             return product["price"]
+
+# Zauważ, że klasa Shop przechowuje dane o produktach w sklepie. Odpowiedz na następujące pytania:
+
+# Co w przypadku, gdy sklepy współdzielą między sobą bazę produktów?
+# Jak będzie wyglądać implementacja nowych metod wyliczania ceny produktu?
+# Jak łatwe będzie utrzymanie takiej bazy kodu?
+# Jak łatwe będzie testowanie powyższej klasy, gdy zmienimy coś w kodzie?
+# Powyższy przykład reprezentuje tzw. boską klasę - powszechny błąd, w którym klasa odpowiada za zbyt dużą część funkcjonalności.
+
+# Jak poprawić kod zgodnie z regułą S?
+# Należy rozdzielić definicję na dwie klasy - Shop i Product.
+
+# SOLID - Open–closed principle
+
+# Klasa ma być otwarta na rozszerzanie, a zamknięta na modyfikacje - z zasady, gdy dodajemy nową funkcjonalność, domyślne podejście powinno zakładać jego wsteczną kompatybilność przez rozszerzanie.
+
+# Rozważmy następującą klasę reprezentującą produkt:
+
+# class Product:
+#     def __init__(self, name, price, model):
+#         self.name = name
+#         self.price = price
+#         self.model = model
+
+#     def get_price(self, qty):
+#         return self.price * qty
+
+# Z założenia jest to klasa używana w wielu miejscach w kodzie sklepu. Szybkie wyszukiwanie wskazało Ci, że obiekt jest tworzony w wokoło 40 różnych plikach, metoda get_price jest wywoływana w 70 różnych plikach.
+
+# Dostajesz za zadanie rozszerzenie funkcjonalności niektórych produktów o deklarowanie zniżki (w procentach), gdy liczba zamówionych sztuk osiągnie graniczną wartość. Procent zniżki i wartość progowa liczby sztuk mają być wymaganymi parametrami konstruktora. Rozważmy następujący kod jako odpowiedź na te zapotrzebowania:
+
+# class Product:
+#     def __init__(self, name, price, model, discount_qty, discount_percent):
+#         self.name = name
+#         self.price = price
+#         self.model = model
+#         self.discount_qty = discount_qty
+#         self.discount_percent = discount_percent
+
+#     def get_price(self, qty):
+#         if qty < self.discount_qty:
+#             return self.price * qty
+#         return self.price * qty * (100 - self.discount_percent)/100
+
+# Po tej modyfikacji należy zmodyfikować wszystkie wystąpienia konstruktora klasy Product (40 różnych plików)!
+
+# Jak zatem prawidłowo rozwiązać ten problem? Należy stworzyć osobną klasę DiscountedQtyProduct.
+
+# class Product:
+#     def __init__(self, name, price, model):
+#         self.name = name
+#         self.price = price
+#         self.model = model
+
+#     def get_price(self, qty):
+#         return self.price * qty
+
+
+# class DiscountedQtyProduct(Product):
+#     def __init__(self, name, price, model, discount_qty, discount_percent):
+#         super().__init__(name, price, model)
+#         self.discount_qty = discount_qty
+#         self.discount_percent = discount_percent
+
+#     def get_price(self, qty):
+#         if qty < self.discount_qty:
+#             return self.price * qty
+#         return self.price * qty * (100 - self.discount_percent)/100
+
+
+
+# SOLID - Liskov substitution principle
+
+# Program jest poprawny, gdy zastąpisz klasę bazową klasą pochodną.
+
+# Rozważ powyższy przykład dla klasy Product i DiscountedQtyProduct. Dodajmy trzeci rodzaj produktu - produkt na abonament, SubscriptionProduct - dla tego typu produktów cenę obliczamy na podstawie liczby kont dostępowych i liczby wykupionych miesięcy.
+
+# class Product:
+#     def __init__(self, name, price, model):
+#         self.name = name
+#         self.price = price
+#         self.model = model
+
+#     def get_price(self, qty):
+#         return self.price * qty
+
+
+# class SubscriptionProduct(Product):
+#     def get_price(self, qty, months):
+#         return self.price * qty * months
+
+
+# class DiscountedQtyProduct(Product):
+#     def __init__(self, name, price, model, discount_qty, discount_percent):
+#         super().__init__(name, price, model)
+#         self.discount_qty = discount_qty
+#         self.discount_percent = discount_percent
+
+#     def get_price(self, qty):
+#         if qty < self.discount_qty:
+#             return self.price * qty
+#         return self.price * qty * (100 - self.discount_percent)/100
+
+# Czy możliwe jest wykonanie obj.get_price(12) dla każdej z tych trzech klas? NIE
+# Aby prawidłowo obsłużyć wykonanie tego kodu, musisz teraz dodać warunek sprawdzający, czy podany obiekt jest abonamentowy.
+# Jak to rozwiązać?
+
+# Zdefiniujmy dla produktu abonamentowego osobną metodę do podania liczby miesięcy i domyślny okres abonamentowy:
+
+# class SubscriptionProduct(Product):
+#     def __init__(self, name, price, model, default_timespan):
+#         super().__init__(name, price, model)
+#         self.default_timespan = default_timespan
+
+#     def get_price(self, qty):
+#         return self.price * qty * self.default_timespan
+    
+#     def get_price_by_timespan(self, qty, months):
+#         return self.price * qty * months
+
+# W ten sposób rozwiązaliśmy problem niekompatybilnych interfejsów.
+
+# SOLID - Interface segregation principle
+
+# Małe, ścisłe interfejsy są lepsze niż jeden duży.
+
+# Zdefiniujmy dla naszej listy produktów, jakich metod będziemy wymagać:
+
+# def get_price(self, qty): # cena produktu
+#     pass
+
+# def get_price_by_timespan(self, qty): # cena produktu abonamentowego
+#     pass
+
+# def get_weight(self, qty): # waga paczki (do wyliczania ceny wysyłki)
+#     pass
+
+# def estimated_delivery(self, qty): # szacowany czas dostawy
+#     pass
+
+# def tax_rate(self): # domyślny procent podatku
+#     pass
+
+# Interfejs musi być zdefiniowany w całości dla wszystkich produktów. Czy ma sens definiowanie metod estimated_delivery, get_weight dla produktów cyfrowych?
+# Czy każdy produkt potrzebuje metody get_price_by_timespan? NIE
+# Jak rozwiązać ten problem?
+# Zadeklarujmy metody dla wszystkich produktów:
+
+# def get_price(self, qty): # cena produktu
+#     pass
+
+# def tax_rate(self): # domyślny procent podatku
+#     pass
+
+# Metody dla produktów abonamentowych:
+
+# def get_price_by_timespan(self, qty): # cena produktu abonamentowego
+#     pass
+
+# I dla produktów do fizycznej wysyłki:
+
+# def get_weight(self, qty): # waga paczki (do wyliczania ceny wysyłki)
+#     pass
+
+# def estimated_delivery(self, qty): # szacowany czas dostawy
+#     pass
+
+
+# SOLID - Dependency inversion principle
+
+# Wysokopoziomowe moduły nie powinny zależeć od modułów niskopoziomowych.
+
+# Załóżmy, że definiujemy dla naszych produktów metodę do zrzucania zawartości do jednego z wielu formatów plików.
+# Formaty dostępne to CSV, JSON. Zdefiniujmy metody dla każdej z klas do eksportu danych:
+
+# class Product(Product):
+#   ...
+#     def export_data﻿(self):
+#         return self.__class__.__name___, self.__dict__
+
+# class AbstractExport:
+#     def __init__(self, filepath):
+#         ...
+
+# class JSONExport(AbstractExport):
+#     ...
+
+# class CSVExport(AbstracExport):
+#     ...
+
+# Zauważ, że csv może eksportować tylko listy, natomiast json nie jest w stanie przyrostowo dodawać wpisów do pliku.
+
+# Gdzie powinniśmy rozwiązać te dwa problemy?
+
+# Rozdzielanie wpisów w paczki o liczbie produktów do 100/1000 dla plików JSON?
+# Przekształcanie listy w słownik na potrzeby plików CSV?
+
+# Rozważmy implementacje rozwiązania wewnątrz klasy Product (modyfikacja metody export_data)
+
+# W przypadku błędu w zapisie do pliku, gdzie w pierwszej kolejności należy szukać odpowiedniego kodu?
+# Gdy chcemy zdefiniować nową metodę eksportu (Eksport do bazy danych), czy powinniśmy implementować ją poprzez modyfikacje w klasie Product, czy poprzez nową klasę dziedziczącą z AbstractExport?
+
+# Klasy i metody niskopoziomowe (dziedziczące z AbstrakctExport) powinny być traktowane jako zamknięte pudełko, jedyną widoczną częścią powinny być interfejsy publiczne.
