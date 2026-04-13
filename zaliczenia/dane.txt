@@ -1,7 +1,11 @@
 SALDO
-11357.0
+11561.0
 MAGAZYN
 bulka;1.0;3
 HISTORIA
 saldo 10.0
 zakup bulka 1.0 3
+saldo 100.0
+zakup chleb 10.0 2
+saldo 100.0
+sprzedaz chleb 12.0 2

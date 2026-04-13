@@ -2,163 +2,157 @@
 
 # Jak do tej pory nasze funkcje zwracały tylko i wyłącznie obiekty lub wartości prymitywne (słowniki, listy, liczby ...). W pythonie jest również możliwe zwracanie klas lub innych funkcji. Napiszmy krótki program, który pobiera z argv pierwszy argument, wskazujący funkcję agregującą, pozostałe parametry to wartości liczbowe do agregacji .
 
-# def avg(*args):
-#     if not args:
-#         return 0
+def avg(*args):
+    if not args:
+        return 0
 
-#     counter=0
-#     sum=0
-#     for arg in args:
-#         sum += arg
-#         counter+=1
-#     return sum/counter
+    counter=0
+    sum=0
+    for arg in args:
+        sum += arg
+        counter+=1
+    return sum/counter
 
 
-# def parse_args(argv):
-#     if argv[1] == "max":
-#   	    return max(*[float(item) for item in argv[2:]])
-#     if argv[1] == "min":
-#   	    return min(*[float(item) for item in argv[2:]])
-#     if argv[1] == "avg":
-#   	    return avg(*[float(item) for item in argv[2:]])
+def parin argv[2:]])
 
 # Napiszmy krótką funkcję, która zwróci nam funkcję agregującą. Użyjemy jej w metodzie parse_args:
 
-# def aggr_func(func_name):
-#     if func_name == "max":
-#         return max
-#     if func_name == "min":
-#         return min
-#     if func_name == "avg":
-#         return avg
+def aggr_func(func_name):
+    if func_name == "max":
+        return max
+    if func_name == "min":
+        return min
+    if func_name == "avg":
+        return avg
 
-# def parse_args(argv):
-#     aggrf = aggr_func(argv[1])
-#     return aggrf(*[float(item) for item in argv[2:]])
+def parse_args(argv):
+    aggrf = aggr_func(argv[1])
+    return aggrf(*[float(item) for item in argv[2:]])
 
 # Prawdopodobnie funkcja aggrfunc nie będzie użyta nigdzie poza parse_args. W języku python możemy w takich przypadkach przenieść definicję funkcji aggr_func wewnątrz parse_args:
 
-# def parse_args(argv):
-#     def aggr_func(func_name):
-#     	if func_name == "max":
-#     		return max
-#    	    if func_name == "min":
-#   		    return min
-#    	    if func_name == "avg":
-#   		    return avg
-#     aggrf = aggr_func(argv[1])
-#     return aggrf(*[float(item) for item in argv[2:]])
+def parse_args(argv):
+    def aggr_func(func_name):
+    	if func_name == "max":
+    		return max
+   	    if func_name == "min":
+  		    return min
+   	    if func_name == "avg":
+  		    return avg
+    aggrf = aggr_func(argv[1])
+    return aggrf(*[float(item) for item in argv[2:]])
 
 # Naszą funkcję do przekazania agregacji możemy również przekazać poprzez parametr:
 
-# def parse_args(aggrf, argv):
-#     return aggrf(*[float(item) for item in argv[2:]])
+def parse_args(aggrf, argv):
+    return aggrf(*[float(item) for item in argv[2:]])
 
-# ret_val = parse_args(max, sys.argv)
+ret_val = parse_args(max, sys.argv)
 
 
 # Dekoratory
 
 # Utwórzmy funkcję bordered, która otoczy tekst drukowany przez funkcję wewnątrz znakami "="
 
-# import os
+import os
 
 
-# def bordered(callback):
-#     w, h = os.get_terminal_size()
-#     print("=" * w, end="\n\n")
-#     callback()
-#     print()
-#     print("=" * w, end="\n\n")
+def bordered(callback):
+    w, h = os.get_terminal_size()
+    print("=" * w, end="\n\n")
+    callback()
+    print()
+    print("=" * w, end="\n\n")
    
 
-# def main_func():
-#     print("Line 1")
-#     print("Line 2")
+def main_func():
+    print("Line 1")
+    print("Line 2")
 
 
-# bordered(main_func)
+bordered(main_func)
 
 
-# def other_func():
-#     print("Line 3")
-#     print("Line 4")
+def other_func():
+    print("Line 3")
+    print("Line 4")
 
 
-# bordered(other_func)
+bordered(other_func)
 
 # Python pozwala na skrótowy zapis takiej struktury:
 
-# import os
+import os
 
 
-# def bordered(callback):
-#     w, h = os.get_terminal_size()
-#     print("=" * w, end="\n\n")
-#     callback()
-#     print()
-#     print("=" * w, end="\n\n")
+def bordered(callback):
+    w, h = os.get_terminal_size()
+    print("=" * w, end="\n\n")
+    callback()
+    print()
+    print("=" * w, end="\n\n")
 
 
-# @bordered
-# def main_func():
-#     print("Line 1")
-#     print("Line 2")
+@bordered
+def main_func():
+    print("Line 1")
+    print("Line 2")
 
 
-# @bordered
-# def other_func():
-#       print("Line 3")
-#       print("Line 4")
+@bordered
+def other_func():
+      print("Line 3")
+      print("Line 4")
 
 # Nie będziemy używać naszej funkcjonalności poza main_func i other_func bez obramowania. Zastąpmy jej deklaracje tak, by zawsze wykonanie main_func i other_func używało obramowania.
 
-# import os
+import os
 
-# def bordered(callback):
-#     w, h = os.get_terminal_size()
-#     print("=" * w, end="\n\n")
-#     callback()
-#     print()
-#     print("=" * w, end="\n\n")
+def bordered(callback):
+    w, h = os.get_terminal_size()
+    print("=" * w, end="\n\n")
+    callback()
+    print()
+    print("=" * w, end="\n\n")
 
-# def main_func():
-#     def main_func_inside():
-#         print("Line 1")
-#         print("Line 2")
-#     bordered(main_func_inside)
+def main_func():
+    def main_func_inside():
+        print("Line 1")
+        print("Line 2")
+    bordered(main_func_inside)
 
-# def other_func():
-#     def other_func_inside():
-#         print("Line 3")
-#         print("Line 4")
-#     bordered(other_func_inside)
+def other_func():
+    def other_func_inside():
+        print("Line 3")
+        print("Line 4")
+    bordered(other_func_inside)
 
 # Taka struktura może być prościej zapisana poprzez:
 
-# import os
+import os
 
-# def bordered(callback):
-#     def retfunc():
-#         w, h = os.get_terminal_size()
-#         print("=" * w, end="\n\n")
-#         callback()
-#         print()
-#         print("=" * w, end="\n\n")
-#     return retfunc  
+def bordered(callback):
+    def retfunc():
+        w, h = os.get_terminal_size()
+        print("=" * w, end="\n\n")
+        callback()
+        print()
+        print("=" * w, end="\n\n")
+    return retfunc  
 
-# @bordered
-# def main_func():
-#     print("Line 1")
-#     print("Line 2")
+@bordered
+def main_func():
+    print("Line 1")
+    print("Line 2")
    
-# @bordered
-# def other_func():
-#     print("Line 3")
-#     print("Line 4")
+@bordered
+def other_func():
+    print("Line 3")
+    print("Line 4")
    
-# main_func()
-# other_func()
+main_func()
+other_func()
 
 
 # Dekoratory w obiektach:
