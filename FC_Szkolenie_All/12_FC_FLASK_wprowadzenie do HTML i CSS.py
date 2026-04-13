@@ -1,6 +1,7 @@
 # <!-- Wprowadzenie do HTML/XML:
 
-# Język HTML to wariant języka XML dostosowany do potrzeb prezentacji treści w sieci WWW. Jest to język opisowy tworzący strukturę drzewa. Węzły drzewa (tagi) zawierają się w innych tagach.
+# Język HTML to wariant języka XML dostosowany do potrzeb prezentacji treści w sieci WWW. Jest to język opisowy tworzący strukturę drzewa. 
+# Węzły drzewa (tagi) zawierają się w innych tagach.
 
 # Podstawowym budulcem w HTML jest Tag:
 

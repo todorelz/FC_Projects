@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <title>System Accountant</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+<h1>📦 System magazynowo-księgowy</h1>
+
+<div class="panel">
+    <h2>Saldo: {{ saldo }} zł</h2>
+
+    <h3>Magazyn:</h3>
+    <ul>
+        {% for item, qty in magazyn.items() %}
+            <li>{{ item }} - {{ qty }} szt.</li>
+        {% endfor %}
+    </ul>
+</div>
+
+<div class="forms">
+
+    <form method="POST">
+        <h3>Zakup</h3>
+        <input type="hidden" name="action" value="zakup">
+        <input type="text" name="name" placeholder="Produkt" required>
+        <input type="number" step="0.01" name="price" placeholder="Cena" required>
+        <input type="number" name="qty" placeholder="Ilość" required>
+        <button type="submit">Kup</button>
+    </form>
+
+    <form method="POST">
+        <h3>Sprzedaż</h3>
+        <input type="hidden" name="action" value="sprzedaz">
+        <input type="text" name="name" placeholder="Produkt" required>
+        <input type="number" step="0.01" name="price" placeholder="Cena" required>
+        <input type="number" name="qty" placeholder="Ilość" required>
+        <button type="submit">Sprzedaj</button>
+    </form>
+
+    <form method="POST">
+        <h3>Zmiana salda</h3>
+        <input type="hidden" name="action" value="saldo">
+        <input type="text" name="comment" placeholder="Komentarz" required>
+        <input type="number" step="0.01" name="value" placeholder="Kwota" required>
+        <button type="submit">Zmień</button>
+    </form>
+
+</div>
+
+<a href="/historia/" class="btn">Zobacz historię ↓</a>
+
+</body>
+</html>
