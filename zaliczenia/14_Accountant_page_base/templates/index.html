@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <title>System firmy</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+<h1> System zarządzania firmą</h1>
+
+<!-- SALDO -->
+<div class="panel">
+    <h2>Saldo: {{ saldo.value }} zł</h2>
+</div>
+
+
+<div class="panel">
+    <h3>Magazyn:</h3>
+
+    {% if produkty %}
+        <ul>
+            {% for p in produkty %}
+                <li>{{ p.name }} — {{ p.qty }} szt.</li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>Magazyn jest pusty</p>
+    {% endif %}
+</div>
+
+
+<div class="forms">
+
+
+    <form method="POST">
+        <h3>Zakup</h3>
+        <input type="hidden" name="action" value="zakup">
+
+        <input type="text" name="name" placeholder="Nazwa produktu" required>
+
+
+        <input type="number" step="0.01" name="price" placeholder="Cena" min="0.01" required>
+        <input type="number" name="qty" placeholder="Ilość" min="1" required>
+
+        <button type="submit">Kup</button>
+    </form>
+
+    <!-- SPRZEDAŻ -->
+    <form method="POST">
+        <h3>Sprzedaż</h3>
+        <input type="hidden" name="action" value="sprzedaz">
+
+        <input type="text" name="name" placeholder="Nazwa produktu" required>
+
+        <input type="number" name="qty" placeholder="Ilość" min="1" required>
+
+        <button type="submit">Sprzedaj</button>
+    </form>
+
+
+    <form method="POST">
+        <h3>Zmiana salda</h3>
+        <input type="hidden" name="action" value="saldo">
+
+        <!-- blokada 0 i minusów -->
+        <input type="number" step="0.01" name="value" placeholder="Kwota" min="0.01" required>
+
+        <button type="submit">Zmień</button>
+    </form>
+
+</div>
+
+
+<a href="/historia/" class="btn">📜 Historia ↓</a>
+
+</body>
+</html>
