@@ -1,0 +1,11 @@
+{
+    "saldo": 60.0,
+    "magazyn": {
+        "chleb": 4
+    },
+    "historia": [
+        "2026-04-13 15:18:48 | Zakup: chleb, 6 szt., koszt 60.0",
+        "2026-04-13 15:18:54 | Sprzeda\u017c: chleb, 2 szt., przych\u00f3d 20",
+        "2026-04-13 15:18:59 | Zmiana salda: 100.0"
+    ]
+}
