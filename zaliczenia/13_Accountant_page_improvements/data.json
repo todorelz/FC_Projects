@@ -1,11 +1,18 @@
 {
-    "saldo": 60.0,
+    "saldo": 100.0,
     "magazyn": {
-        "chleb": 4
+        "Bu\u0142ka": {
+            "ilosc": 90,
+            "cena": 10.0
+        }
     },
     "historia": [
-        "2026-04-13 15:18:48 | Zakup: chleb, 6 szt., koszt 60.0",
-        "2026-04-13 15:18:54 | Sprzeda\u017c: chleb, 2 szt., przych\u00f3d 20",
-        "2026-04-13 15:18:59 | Zmiana salda: 100.0"
+        "2026-04-17 14:34:38 | B\u0142\u0105d: brak \u015brodk\u00f3w",
+        "2026-04-17 14:34:43 | B\u0142\u0105d: brak produktu 'chleb'",
+        "2026-04-17 14:34:47 | Zmiana salda: 1000.00",
+        "2026-04-17 14:34:55 | Zakup: chleb, 10 szt., koszt 100.00",
+        "2026-04-17 14:35:01 | Sprzeda\u017c: chleb, 10 szt., cena 10.00, przych\u00f3d 100.00",
+        "2026-04-17 14:35:08 | Zakup: Bu\u0142ka, 100 szt., koszt 1000.00",
+        "2026-04-17 14:35:13 | Sprzeda\u017c: Bu\u0142ka, 10 szt., cena 10.00, przych\u00f3d 100.00"
     ]
 }

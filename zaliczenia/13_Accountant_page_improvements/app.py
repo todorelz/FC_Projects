@@ -30,7 +30,6 @@ def add_history(data, text):
     data["historia"].append(f"{timestamp} | {text}")
 
 
-
 @app.route("/", methods=["GET", "POST"])
 def index():
     data = load_data()
@@ -50,17 +49,36 @@ def index():
                 save_data(data)
                 return redirect("/")
 
-            if not name:
-                add_history(data, "Błąd: brak nazwy produktu")
+            if not name or price <= 0 or qty <= 0:
+                add_history(data, "Błąd: nieprawidłowe dane")
                 save_data(data)
                 return redirect("/")
 
             koszt = price * qty
+
+            if data["saldo"] < koszt:
+                add_history(data, "Błąd: brak środków")
+                save_data(data)
+                return redirect("/")
+
             data["saldo"] -= koszt
-            data["magazyn"][name] = data["magazyn"].get(name, 0) + qty
 
-            add_history(data, f"Zakup: {name}, {qty} szt., koszt {koszt}")
+            if name in data["magazyn"]:
+                old = data["magazyn"][name]
+                new_qty = old["ilosc"] + qty
+                new_price = (old["cena"] * old["ilosc"] + price * qty) / new_qty
 
+                data["magazyn"][name] = {
+                    "ilosc": new_qty,
+                    "cena": new_price
+                }
+            else:
+                data["magazyn"][name] = {
+                    "ilosc": qty,
+                    "cena": price
+                }
+
+            add_history(data, f"Zakup: {name}, {qty} szt., koszt {koszt:.2f}")
 
         elif action == "sprzedaz":
             name = request.form.get("name")
@@ -72,35 +90,47 @@ def index():
                 save_data(data)
                 return redirect("/")
 
-            if not name:
-                add_history(data, "Błąd: brak nazwy produktu")
+            if not name or qty <= 0:
+                add_history(data, "Błąd: nieprawidłowe dane")
                 save_data(data)
                 return redirect("/")
 
-            if data["magazyn"].get(name, 0) >= qty:
-                data["magazyn"][name] -= qty
+            if name not in data["magazyn"]:
+                add_history(data, f"Błąd: brak produktu '{name}'")
+                save_data(data)
+                return redirect("/")
 
-                # możesz zmienić logikę ceny sprzedaży
-                price = 10
-                przychod = price * qty
-                data["saldo"] += przychod
+            if data["magazyn"][name]["ilosc"] < qty:
+                add_history(data, "Za mało towaru")
+                save_data(data)
+                return redirect("/")
 
-                add_history(data, f"Sprzedaż: {name}, {qty} szt., przychód {przychod}")
-            else:
-                add_history(data, f"Błąd: brak produktu '{name}' w magazynie")
+            price = data["magazyn"][name]["cena"]
+            przychod = price * qty
+
+            data["magazyn"][name]["ilosc"] -= qty
+
+            if data["magazyn"][name]["ilosc"] == 0:
+                del data["magazyn"][name]
+
+            data["saldo"] += przychod
+
+            add_history(
+                data,
+                f"Sprzedaż: {name}, {qty} szt., cena {price:.2f}, przychód {przychod:.2f}"
+            )
 
 
         elif action == "saldo":
             try:
                 value = float(request.form.get("value"))
             except (ValueError, TypeError):
-                add_history(data, "Błąd: nieprawidłowa wartość salda")
+                add_history(data, "Błąd: nieprawidłowa wartość")
                 save_data(data)
                 return redirect("/")
 
             data["saldo"] += value
-            add_history(data, f"Zmiana salda: {value}")
-
+            add_history(data, f"Zmiana salda: {value:.2f}")
 
         save_data(data)
         return redirect("/")
@@ -115,20 +145,14 @@ def historia(start=None, end=None):
     data = load_data()
     historia = data["historia"]
 
-
     if start is None or end is None:
         return render_template("historia.html", historia=historia)
 
-
-    if start < 0 or end > len(historia) or start >= end:
+    if start < 0 or end >= len(historia) or start > end:
         error = f"Nieprawidłowy zakres. Dostępny zakres: 0 - {len(historia)-1}"
-        return render_template(
-            "historia.html",
-            historia=historia,
-            error=error
-        )
+        return render_template("historia.html", historia=historia, error=error)
 
-    zakres = historia[start:end]
+    zakres = historia[start:end + 1]
 
     return render_template("historia.html", historia=zakres)
 
