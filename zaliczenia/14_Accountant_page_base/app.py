@@ -4,9 +4,6 @@ from flask_migrate import Migrate
 
 app = Flask(__name__)
 
-# =========================
-# KONFIGURACJA
-# =========================
 app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///accountant.db"
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
@@ -14,13 +11,11 @@ db.init_app(app)
 migrate = Migrate(app, db)
 
 
-# =========================
-# WALIDACJA
-# =========================
+
 def safe_float(value):
     try:
         return float(value)
-    except:
+    except (ValueError, TypeError):
         return None
 
 
@@ -28,31 +23,21 @@ def is_valid_positive(value):
     return value is not None and value > 0
 
 
-# =========================
-# INIT SALDO
-# =========================
-@app.before_request
-def create_saldo():
-    if not Saldo.query.first():
-        db.session.add(Saldo(value=0))
-        db.session.commit()
 
-
-# =========================
-# STRONA GŁÓWNA
-# =========================
 @app.route("/", methods=["GET", "POST"])
 def index():
     saldo = Saldo.query.first()
+    if not saldo:
+        saldo = Saldo(value=0)
+        db.session.add(saldo)
+        db.session.commit()
 
     if request.method == "POST":
         action = request.form.get("action")
 
         try:
 
-            # =========================
-            # ZAKUP
-            # =========================
+   
             if action == "zakup":
                 name = request.form.get("name")
 
@@ -65,27 +50,41 @@ def index():
                     return redirect("/")
 
                 qty = int(qty)
-
                 koszt = price * qty
+
+                if saldo.value < koszt:
+                    db.session.add(Historia(action="Błąd: brak środków"))
+                    db.session.commit()
+                    return redirect("/")
+
                 saldo.value -= koszt
 
                 produkt = Produkt.query.filter_by(name=name).first()
+
                 if not produkt:
-                    produkt = Produkt(name=name, qty=0)
+                    produkt = Produkt(name=name, qty=0, price=price)
                     db.session.add(produkt)
+                else:
+                    # średnia ważona ceny
+                    if produkt.qty > 0:
+                        produkt.price = (
+                            produkt.price * produkt.qty + price * qty
+                        ) / (produkt.qty + qty)
+                    else:
+                        produkt.price = price
 
                 produkt.qty += qty
 
+                saldo.value = round(saldo.value, 2)
+
                 db.session.add(Historia(
-                    action=f"Zakup: {name}, {qty} szt., koszt {koszt}"
+                    action=f"Zakup: {name}, {qty} szt., koszt {koszt:.2f}"
                 ))
 
                 db.session.commit()
 
 
-            # =========================
-            # SPRZEDAŻ
-            # =========================
+
             elif action == "sprzedaz":
                 name = request.form.get("name")
 
@@ -100,40 +99,51 @@ def index():
 
                 produkt = Produkt.query.filter_by(name=name).first()
 
-                if not produkt or produkt.qty < qty:
+                if not produkt:
                     db.session.add(Historia(
-                        action=f"Błąd sprzedaży: brak produktu {name}"
+                        action=f"Błąd: brak produktu {name}"
                     ))
                     db.session.commit()
                     return redirect("/")
 
+                if produkt.qty < qty:
+                    db.session.add(Historia(
+                        action="Błąd: za mało towaru"
+                    ))
+                    db.session.commit()
+                    return redirect("/")
+
+                przychod = qty * produkt.price
+
                 produkt.qty -= qty
 
-                przychod = qty * 10
+                if produkt.qty == 0:
+                    db.session.delete(produkt)
+
                 saldo.value += przychod
+                saldo.value = round(saldo.value, 2)
 
                 db.session.add(Historia(
-                    action=f"Sprzedaż: {name}, {qty} szt., przychód {przychod}"
+                    action=f"Sprzedaż: {name}, {qty} szt., cena {produkt.price:.2f}, przychód {przychod:.2f}"
                 ))
 
                 db.session.commit()
 
 
-            # =========================
-            # ZMIANA SALDA
-            # =========================
+
             elif action == "saldo":
                 value = safe_float(request.form.get("value"))
 
-                if not is_valid_positive(value):
-                    db.session.add(Historia(action="Błąd: niepoprawna zmiana salda"))
+                if value is None:
+                    db.session.add(Historia(action="Błąd: niepoprawna wartość"))
                     db.session.commit()
                     return redirect("/")
 
                 saldo.value += value
+                saldo.value = round(saldo.value, 2)
 
                 db.session.add(Historia(
-                    action=f"Zmiana salda: {value}"
+                    action=f"Zmiana salda: {value:.2f}"
                 ))
 
                 db.session.commit()
@@ -144,13 +154,11 @@ def index():
 
         return redirect("/")
 
-    produkty = Produkt.query.all()
+    produkty = Produkt.query.order_by(Produkt.name).all()
     return render_template("index.html", saldo=saldo, produkty=produkty)
 
 
-# =========================
-# HISTORIA + ZAKRES
-# =========================
+
 @app.route("/historia/")
 @app.route("/historia/<int:start>/<int:end>")
 def historia(start=None, end=None):
@@ -159,15 +167,24 @@ def historia(start=None, end=None):
     if start is None or end is None:
         return render_template("historia.html", historia=query)
 
-    if start < 0 or end > len(query) or start >= end:
+    if start < 0 or end >= len(query) or start > end:
         error = f"Nieprawidłowy zakres. Dostępny: 0 - {len(query)-1}"
         return render_template("historia.html", historia=query, error=error)
 
-    return render_template("historia.html", historia=query[start:end])
+    return render_template("historia.html", historia=query[start:end + 1])
 
+with app.app_context():
+    db.create_all()
+    if not Saldo.query.first():
+        db.session.add(Saldo(value=0))
+        db.session.commit()
 
-# =========================
-# START
-# =========================
 if __name__ == "__main__":
+    with app.app_context():
+        db.create_all()
+
+        if not Saldo.query.first():
+            db.session.add(Saldo(value=0))
+            db.session.commit()
+
     app.run(debug=True)

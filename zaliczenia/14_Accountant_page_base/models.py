@@ -12,7 +12,8 @@ class Saldo(db.Model):
 class Produkt(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100), unique=True)
-    qty = db.Column(db.Integer, default=0)
+    qty = db.Column(db.Integer)
+    price = db.Column(db.Float)
 
 
 class Historia(db.Model):
