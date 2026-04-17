@@ -2,61 +2,116 @@ from flask import Flask, render_template, request, redirect
 
 app = Flask(__name__)
 
-saldo = 0.0
-magazyn = {}
-historia = []
+data = {
+    "saldo": 0.0,
+    "magazyn": {},
+    "historia": []
+}
+
 
 @app.route("/", methods=["GET", "POST"])
 def index():
-    global saldo, magazyn, historia
-
     if request.method == "POST":
         action = request.form.get("action")
 
         if action == "zakup":
-            name = request.form["name"]
-            price = float(request.form["price"])
-            qty = int(request.form["qty"])
+            try:
+                name = request.form["name"].lower()
+                price = float(request.form["price"])
+                qty = int(request.form["qty"])
+            except:
+                data["historia"].append("Błąd: niepoprawne dane zakupu")
+                return redirect("/")
+
+            if price <= 0 or qty <= 0:
+                data["historia"].append("Błąd: cena i ilość muszą być > 0")
+                return redirect("/")
 
             koszt = price * qty
-            saldo -= koszt
-            magazyn[name] = magazyn.get(name, 0) + qty
 
-            historia.append(f"Zakup: {name}, {qty} szt., koszt {koszt}")
+            if data["saldo"] < koszt:
+                data["historia"].append("Błąd: brak środków")
+                return redirect("/")
+
+            data["saldo"] -= koszt
+            data["magazyn"][name] = data["magazyn"].get(name, 0) + qty
+
+            data["historia"].append(
+                f"Zakup: {name}, {qty} szt., koszt {koszt:.2f}"
+            )
+
 
         elif action == "sprzedaz":
-            name = request.form["name"]
-            price = float(request.form["price"])
-            qty = int(request.form["qty"])
+            try:
+                name = request.form["name"].lower()
+                price = float(request.form["price"])
+                qty = int(request.form["qty"])
+            except:
+                data["historia"].append("Błąd: niepoprawne dane sprzedaży")
+                return redirect("/")
 
-            if magazyn.get(name, 0) >= qty:
-                przychod = price * qty
-                saldo += przychod
-                magazyn[name] -= qty
+            if price <= 0 or qty <= 0:
+                data["historia"].append("Błąd: cena i ilość muszą być > 0")
+                return redirect("/")
 
-                historia.append(f"Sprzedaż: {name}, {qty} szt., przychód {przychod}")
+            if name not in data["magazyn"]:
+                data["historia"].append(f"Błąd: brak produktu {name}")
+                return redirect("/")
+
+            if data["magazyn"][name] < qty:
+                data["historia"].append("Błąd: za mało towaru")
+                return redirect("/")
+
+            przychod = price * qty
+            data["saldo"] += przychod
+            data["magazyn"][name] -= qty
+
+            if data["magazyn"][name] == 0:
+                del data["magazyn"][name]
+
+            data["historia"].append(
+                f"Sprzedaż: {name}, {qty} szt. x {price:.2f}, przychód {przychod:.2f}"
+            )
+
 
         elif action == "saldo":
-            comment = request.form["comment"]
-            value = float(request.form["value"])
+            try:
+                value = float(request.form["value"])
+            except:
+                data["historia"].append("Błąd: saldo")
+                return redirect("/")
 
-            saldo += value
-            historia.append(f"Zmiana salda: {comment}, {value}")
+            data["saldo"] += value
+            data["historia"].append(f"Zmiana salda: {value:.2f}")
 
         return redirect("/")
 
-    return render_template("index.html", saldo=saldo, magazyn=magazyn)
+    return render_template("index.html", data=data)
 
 
 @app.route("/historia/")
-@app.route("/historia/<int:line_from>/<int:line_to>/")
-def historia_view(line_from=None, line_to=None):
-    if line_from is not None and line_to is not None:
-        data = historia[line_from:line_to]
-    else:
-        data = historia
+@app.route("/historia/<int:start>/<int:end>/")
+def historia_view(start=None, end=None):
 
-    return render_template("historia.html", historia=data)
+    historia = data["historia"]
+
+    if len(historia) == 0:
+        return render_template("historia.html", historia=[], error="Brak historii")
+
+    if start is None or end is None:
+        return render_template("historia.html", historia=historia)
+
+    if start < 0 or end >= len(historia) or start > end:
+        return render_template(
+            "historia.html",
+            historia=historia,
+            error="Błędny zakres"
+        )
+
+    return render_template(
+        "historia.html",
+        historia=historia[start:end + 1]
+    )
 
 
 if __name__ == "__main__":
